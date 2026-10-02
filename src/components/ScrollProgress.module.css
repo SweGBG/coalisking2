@@ -1,0 +1,21 @@
+.topbar { position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 300; pointer-events: none; background: rgba(239,229,209,.06); }
+.topfill { height: 100%; clip-path: inset(0 100% 0 0); background: linear-gradient(90deg, var(--steel), var(--brass), var(--flame), #fff1d2); }
+
+.gauge { display: none; }
+@media (min-width: 1360px) {
+  .topbar { display: none; }
+  .gauge { display: block; position: fixed; left: max(18px, calc((100vw - 1320px) / 2 - 56px)); top: 50%; height: 52vh; width: 56px; transform: translateY(-50%); z-index: 90; pointer-events: none; }
+  .track { position: relative; height: 100%; width: 100%; }
+  /* tick marks */
+  .track::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 10px;
+    background: repeating-linear-gradient(to bottom, rgba(239,229,209,.28) 0 1px, transparent 1px calc(100% / 10)); }
+  .track::after { content: ""; position: absolute; left: 14px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: rgba(239,229,209,.09); }
+  .fill { position: absolute; left: 14px; top: 0; bottom: 0; width: 4px; border-radius: 2px; clip-path: inset(100% 0 0 0); z-index: 1;
+    background: linear-gradient(to top, var(--steel) 0%, var(--brass) 30%, var(--ember) 62%, var(--flame) 84%, #fff1d2 100%);
+    box-shadow: 0 0 14px rgba(255, 90, 31, .55); }
+  .tip { position: absolute; left: 0; bottom: 0; width: 100%; height: 0; z-index: 2; }
+  .dot { position: absolute; left: 10px; top: -6px; width: 12px; height: 12px; border-radius: 50%; background: #fff1d2; box-shadow: 0 0 0 3px rgba(255,90,31,.35), 0 0 18px 4px rgba(255,90,31,.7); animation: beat 1.8s ease-in-out infinite; }
+  .read { position: absolute; left: 28px; top: -12px; font: 800 1.05rem/1 var(--display); letter-spacing: .02em; color: var(--bone); white-space: nowrap; font-variant-numeric: tabular-nums; text-shadow: 0 0 10px rgba(12,10,9,.9); }
+}
+@keyframes beat { 50% { transform: scale(1.35); box-shadow: 0 0 0 5px rgba(255,90,31,.2), 0 0 26px 8px rgba(255,90,31,.8); } }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none; } }

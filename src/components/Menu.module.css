@@ -1,0 +1,46 @@
+.section { position: relative; padding: clamp(5rem, 9vw, 9rem) clamp(1.1rem, 4vw, 2.6rem); overflow: hidden;
+  /* grill-grate texture, barely there */
+  background-image: repeating-linear-gradient(90deg, rgba(239,229,209,.022) 0 2px, transparent 2px 46px), repeating-linear-gradient(0deg, rgba(239,229,209,.022) 0 2px, transparent 2px 46px); }
+.header { max-width: 1180px; margin: 0 auto 2.6rem; display: grid; gap: 1.2rem 3rem; align-items: end; }
+@media (min-width: 900px) { .header { grid-template-columns: auto 1fr; } .sub { justify-self: end; text-align: right; } }
+.eyebrow { grid-column: 1 / -1; font: italic 400 1.1rem/1 var(--serif); color: var(--brass); }
+.title { font: 900 clamp(3.6rem, 11vw, 8.6rem)/.84 var(--display); text-transform: uppercase; letter-spacing: -.01em; }
+.sub { max-width: 24rem; font: italic 400 1.2rem/1.5 var(--serif); color: var(--bone-dim); }
+
+.filters { max-width: 1180px; margin: 0 auto 1.4rem; display: flex; flex-wrap: wrap; gap: .3rem 2rem; border-bottom: 1px solid var(--line); }
+.filter { position: relative; padding: .7rem 0 .8rem; font: 700 1.3rem/1 var(--display); letter-spacing: .03em; color: var(--muted); transition: color .25s; }
+.filter::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: linear-gradient(90deg, var(--ember), var(--flame), var(--brass)); transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s var(--ease); }
+.filter:hover { color: var(--bone); }
+.filterActive { color: var(--bone); }
+.filterActive::after { transform: scaleX(1); }
+.filterCount { margin-left: .35rem; font: 600 .85rem/1 var(--display); color: var(--brass); vertical-align: super; }
+
+.grid { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1fr; column-gap: 3.5rem; }
+@media (min-width: 860px) { .grid { grid-template-columns: 1fr 1fr; } }
+
+.card { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: 1fr auto; grid-template-areas: "top price" "desc price"; column-gap: 1.2rem; align-content: start; padding: 1.5rem .4rem 1.45rem; border-bottom: 1px solid var(--line); }
+.cardTop { grid-area: top; display: flex; align-items: baseline; gap: .8rem; min-width: 0; }
+.cardTop::after { content: ""; flex: 1; min-width: 1rem; align-self: flex-end; margin-bottom: .32em; border-bottom: 2px dotted rgba(239, 229, 209, .2); }
+.cardName { font: 800 clamp(1.5rem, 2.4vw, 1.85rem)/1.05 var(--display); letter-spacing: .015em; text-transform: uppercase; color: var(--bone); }
+.cardDesc { grid-area: desc; margin-top: .35rem; font: italic 400 1.05rem/1.45 var(--serif); color: var(--bone-dim); max-width: 34rem; }
+.cardFooter { display: contents; }
+.cardCat { display: none; }
+.cardPrice { grid-area: price; align-self: start; font: 800 clamp(1.5rem, 2.4vw, 1.85rem)/1.05 var(--display); letter-spacing: .02em; color: var(--brass); transition: color .3s, transform .4s var(--ease); white-space: nowrap; }
+
+.tag { font: 800 .8rem/1 var(--display); letter-spacing: .1em; text-transform: uppercase; padding: .26rem .5rem .2rem; border-radius: 2px; align-self: center; white-space: nowrap; }
+.tagKing { background: var(--flame); color: #1a0a04; }
+.tagSig { border: 1px solid var(--brass); color: var(--brass); }
+.tagPop { border: 1px solid var(--line2); color: var(--bone-dim); }
+
+/* Hover: grill marks + a pass of heat across the row */
+.card::before { content: ""; position: absolute; inset: 0; z-index: -2; opacity: 0; transition: opacity .5s;
+  background: repeating-linear-gradient(115deg, transparent 0 15px, rgba(255, 90, 31, .09) 15px 17px); }
+.card::after { content: ""; position: absolute; inset: 0; z-index: -1; transform: translateX(-102%);
+  background: linear-gradient(90deg, rgba(255, 90, 31, 0), rgba(255, 90, 31, .17) 60%, rgba(255, 170, 80, .26)); }
+@media (hover: hover) {
+  .card:hover::before { opacity: 1; }
+  .card:hover::after { transform: translateX(0); transition: transform .8s var(--ease); }
+  .card:hover .cardPrice { color: var(--flame); transform: scale(1.08); transform-origin: 100% 0; }
+}
+
+@media (max-width: 600px) { .cardTop::after { display: none; } .cardTop { flex-wrap: wrap; row-gap: .35rem; } }

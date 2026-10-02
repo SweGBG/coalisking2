@@ -1,0 +1,18 @@
+.footer { position: relative; overflow: hidden; background: #080605; padding: 4.5rem clamp(1.1rem, 4vw, 2.6rem) 2rem; text-align: center; }
+.footer::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 1px; background: linear-gradient(90deg, transparent, var(--ember), var(--flame), var(--brass), transparent); background-size: 200% 100%; animation: slide 8s linear infinite; }
+@keyframes slide { to { background-position: -200% 0; } }
+.footer::after { content: ""; position: absolute; inset: auto 0 0; height: 40%; pointer-events: none; background: radial-gradient(60% 100% at 50% 130%, rgba(255, 90, 31, .22), transparent 70%); }
+.inner { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1.2rem; }
+.logo { width: min(260px, 60vw); height: auto; opacity: .92; }
+.tagline { font: italic 400 1.15rem/1.4 var(--serif); color: var(--bone-dim); }
+.divider { width: 3rem; height: 2px; background: var(--flame); }
+.links { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem 2rem; }
+.links a { font: 700 1.2rem/1 var(--display); letter-spacing: .04em; color: var(--bone-dim); transition: color .25s; }
+.links a:hover { color: var(--flame); }
+.bottom { width: 100%; margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: center; gap: .3rem 2rem; font: 400 .95rem/1.4 var(--serif); color: var(--muted); }
+
+/* Sparks rising from the bottom edge */
+.sparks { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.sparks i { position: absolute; bottom: -8px; width: 3px; height: 3px; border-radius: 50%; background: var(--flame); box-shadow: 0 0 8px 2px rgba(255, 90, 31, .7); opacity: 0; animation: spark 6s ease-in infinite; }
+@keyframes spark { 0% { opacity: 0; transform: translate(0, 0); } 12% { opacity: .9; } 100% { opacity: 0; transform: translate(26px, -210px) scale(.4); } }
+@media (prefers-reduced-motion: reduce) { .footer::before, .sparks i { animation: none; } .sparks { display: none; } }

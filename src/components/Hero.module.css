@@ -1,0 +1,50 @@
+.hero { position: relative; isolation: isolate; overflow: hidden; min-height: 100svh; display: grid; place-items: center; text-align: center; padding: 7rem 1.5rem 10rem; }
+.bg { color: transparent; font-size: 0; position: absolute; inset: 0; z-index: -4; width: 100%; height: 100%; object-fit: cover; opacity: .34; filter: saturate(.75) contrast(1.15); animation: drift 30s ease-in-out infinite alternate; }
+@keyframes drift { to { transform: scale(1.09); } }
+.overlay { position: absolute; inset: 0; z-index: -3;
+  background: radial-gradient(55% 46% at 50% 40%, rgba(12,10,9,0), rgba(12,10,9,.8) 85%), linear-gradient(180deg, rgba(12,10,9,.72), rgba(12,10,9,.2) 38%, var(--char) 100%); }
+
+/* The coal bed — the one big moment: it breathes under the logo */
+.coalbed { position: absolute; inset: auto 0 0; height: 38svh; z-index: -2; pointer-events: none; overflow: hidden; }
+.heat { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(255, 90, 31, .46), rgba(214, 57, 31, .16) 38%, transparent 85%); animation: breathe 4.6s ease-in-out infinite; }
+.coal { position: absolute; border-radius: 50%; mix-blend-mode: screen;
+  background: radial-gradient(ellipse at 50% 60%, #fff1d2 0, #ff8a3d 18%, rgba(255, 90, 31, .72) 38%, rgba(214, 57, 31, .25) 62%, transparent 74%);
+  opacity: .3; animation: coal 4s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes coal { 0%, 100% { opacity: .22; transform: scale(.88); } 45% { opacity: .95; transform: scale(1.08, 1.2); } 70% { opacity: .55; transform: scale(1, 1.02); } }
+@keyframes breathe { 50% { opacity: .62; } }
+
+.content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
+.heroLogo { width: min(640px, 88vw); height: auto; margin-bottom: 1.6rem; filter: drop-shadow(0 0 70px rgba(255, 90, 31, .28));
+  animation: ignite 2.4s var(--ease) both, hover 8s ease-in-out 2.4s infinite; }
+@keyframes ignite { 0% { opacity: 0; filter: brightness(.1) saturate(.3) drop-shadow(0 0 0 rgba(255,90,31,0)); } 40% { opacity: 1; filter: brightness(1.9) saturate(1.4) drop-shadow(0 0 90px rgba(255,90,31,.9)); } 100% { opacity: 1; filter: brightness(1) saturate(1) drop-shadow(0 0 70px rgba(255,90,31,.28)); } }
+@keyframes hover { 50% { transform: translateY(-9px); } }
+
+.sub { max-width: 31rem; font: italic 400 clamp(1.15rem, 2.3vw, 1.4rem)/1.55 var(--serif); color: var(--bone-dim); margin-bottom: 2.2rem; animation: rise 1s 1.3s var(--ease) both; }
+.btns { display: flex; flex-wrap: wrap; justify-content: center; gap: .9rem; animation: rise 1s 1.55s var(--ease) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+.btnPrimary, .btnSecondary { position: relative; isolation: isolate; overflow: hidden; display: inline-block; padding: 1rem 2rem .9rem; border-radius: 2px; font: 800 1.3rem/1 var(--display); letter-spacing: .05em; transition: color .3s, box-shadow .3s, border-color .3s; }
+.btnPrimary { background: var(--flame); color: #1a0a04; }
+.btnSecondary { border: 1.5px solid var(--brass); color: var(--brass); }
+.btnPrimary::before, .btnSecondary::before { content: ""; position: absolute; inset: 0; z-index: -1; transform: translateY(101%); transition: transform .55s var(--ease); }
+.btnPrimary::before { background: linear-gradient(0deg, #fff1d2, var(--brass)); }
+.btnSecondary::before { background: var(--brass); }
+.btnPrimary:hover::before, .btnSecondary:hover::before { transform: none; }
+.btnPrimary:hover { box-shadow: 0 0 36px rgba(255, 90, 31, .5); }
+.btnSecondary:hover { color: #1a0a04; }
+
+.badge1, .badge2 { position: absolute; bottom: 2.2rem; z-index: 2; display: flex; align-items: center; gap: .7rem; text-align: left; animation: rise 1s 2s var(--ease) both; }
+.badge1 { left: clamp(1.1rem, 3vw, 2.6rem); }
+.badge2 { right: clamp(1.1rem, 3vw, 2.6rem); flex-direction: row-reverse; text-align: right; }
+.badge2 svg { width: 22px; height: 22px; fill: var(--flame); }
+.badgeDot { width: 9px; height: 9px; border-radius: 50%; background: #5ee08a; box-shadow: 0 0 0 0 rgba(94, 224, 138, .6); animation: ping 2.2s ease-out infinite; }
+@keyframes ping { to { box-shadow: 0 0 0 11px rgba(94, 224, 138, 0); } }
+.badgeVal { font: 800 1.15rem/1.1 var(--display); letter-spacing: .03em; color: var(--bone); text-shadow: 0 1px 10px rgba(12,10,9,.9); }
+.badgeSub { font: italic 400 .95rem/1.2 var(--serif); color: var(--bone-dim); text-shadow: 0 1px 10px rgba(12,10,9,.9); }
+@media (max-width: 640px) { .badge1, .badge2 { display: none; } }
+
+.scroll { position: absolute; bottom: 1.2rem; left: 50%; z-index: 2; width: 1px; height: 54px; background: rgba(239, 229, 209, .15); overflow: hidden; }
+.scrollLine { width: 100%; height: 40%; background: linear-gradient(transparent, var(--flame)); animation: drip 2s ease-in infinite; }
+@keyframes drip { from { transform: translateY(-110%); } to { transform: translateY(260%); } }
+@media (max-width: 640px) { .scroll { display: none; } }
+@media (prefers-reduced-motion: reduce) { .bg, .heat, .coal, .heroLogo, .badgeDot, .scrollLine { animation: none !important; } .sub, .btns, .badge1, .badge2 { animation: none; } }

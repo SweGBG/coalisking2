@@ -1,0 +1,17 @@
+# Coal is King
+
+> Authentic charcoal grill restaurant in Stockholm, Sweden. All meat is grilled
+> over real oak and hickory charcoal at 800°C. Founded 2019.
+
+## Key facts
+- Address: Kungsgatan 14, 111 35 Stockholm, Sweden
+- Phone: +46 8 123 456 78
+- Email: hej@coalisking.se
+- Hours: Mon–Fri 12–22, Sat–Sun 12–23
+- Cuisine: Charcoal grill, steakhouse, BBQ
+- Signature dishes: Ribeye 300g (dry-aged 28 days), T-bone 500g, Pork Belly Burnt Ends, Coal-smoked Ribs, Coal-burnt Crème Brûlée
+- Reservations recommended, up to 12 guests in main dining room
+- Vegetarian options available (grilled halloumi, charcoal vegetables)
+
+## Pages
+- [Home](https://coalisking.se): Menu, story, gallery, booking form

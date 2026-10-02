@@ -1,0 +1,42 @@
+.section { position: relative; padding: clamp(5rem, 9vw, 9rem) clamp(1.1rem, 4vw, 2.6rem); background: radial-gradient(70% 55% at 85% 0%, rgba(255, 90, 31, .13), transparent 70%), var(--coal); }
+.inner { max-width: 1180px; margin: 0 auto; display: grid; gap: 3.5rem; }
+@media (min-width: 960px) { .inner { grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; } }
+.eyebrow { font: italic 400 1.1rem/1 var(--serif); color: var(--brass); margin-bottom: .9rem; }
+.title { font: 900 clamp(3.4rem, 9vw, 7rem)/.85 var(--display); text-transform: uppercase; margin-bottom: 1.2rem; }
+.sub { font: italic 400 1.25rem/1.5 var(--serif); color: var(--bone-dim); max-width: 28rem; margin-bottom: 2rem; }
+.mapWrap { position: relative; overflow: hidden; margin-bottom: 1.8rem; border: 1px solid var(--line2); background: var(--ash); }
+.mapWrap iframe { display: block; filter: grayscale(1) invert(.92) contrast(.9) sepia(.35) hue-rotate(-15deg); }
+.infoList { display: grid; gap: .1rem; }
+.infoItem { display: grid; grid-template-columns: 6.5rem 1fr; gap: 1rem; align-items: baseline; padding: .8rem 0; border-top: 1px solid var(--line); font-size: 1.15rem; }
+.infoItem a { width: fit-content; background: linear-gradient(var(--flame), var(--flame)) 0 100% / 0 2px no-repeat; transition: background-size .5s var(--ease), color .3s; }
+.infoItem a:hover { background-size: 100% 2px; color: #fff1d2; }
+.infoLabel { font: italic 400 1rem/1 var(--serif); color: var(--muted); }
+
+.right { position: relative; }
+.form, .success { padding: clamp(1.5rem, 3vw, 2.5rem); background: var(--ash); border: 1px solid var(--line2); position: relative; }
+.form::before { content: ""; position: absolute; left: -1px; right: -1px; top: -1px; height: 3px; background: linear-gradient(90deg, var(--ember), var(--flame), var(--brass)); }
+.formTitle { font: 800 1.9rem/1 var(--display); text-transform: uppercase; letter-spacing: .02em; margin-bottom: 1.6rem; }
+.row { display: grid; gap: 0 1.4rem; grid-template-columns: 1fr; }
+@media (min-width: 560px) { .row { grid-template-columns: 1fr 1fr; } }
+.field { position: relative; margin-bottom: 1.35rem; display: flex; flex-direction: column; gap: .35rem; }
+.field::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s var(--ease); background: linear-gradient(90deg, var(--flame), var(--brass)); }
+.field:focus-within::after { transform: scaleX(1); }
+.label { font: italic 400 1rem/1 var(--serif); color: var(--muted); transition: color .3s; }
+.field:focus-within .label { color: var(--brass); }
+.input { width: 100%; padding: .55rem 0 .65rem; background: transparent; color: var(--bone); border: 0; border-bottom: 1px solid var(--line2); border-radius: 0; font: 400 1.15rem/1.4 var(--serif); outline: none; }
+.input::placeholder { color: rgba(239, 229, 209, .28); font-style: italic; }
+.textarea { resize: vertical; min-height: 5.5rem; }
+.submitBtn { position: relative; isolation: isolate; overflow: hidden; width: 100%; display: flex; align-items: center; justify-content: center; gap: .8rem; margin-top: .6rem; padding: 1.1rem 1.5rem 1rem; background: var(--flame); color: #1a0a04; font: 800 1.45rem/1 var(--display); letter-spacing: .05em; border-radius: 2px; transition: box-shadow .3s; }
+.submitBtn::before { content: ""; position: absolute; inset: 0; z-index: -1; transform: translateY(101%); transition: transform .55s var(--ease); background: linear-gradient(0deg, #fff1d2, var(--brass)); }
+.submitBtn:hover::before { transform: none; }
+.submitBtn:hover { box-shadow: 0 0 36px rgba(255, 90, 31, .45); }
+.submitBtn svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .5s var(--ease); }
+.submitBtn:hover svg { transform: translate(5px, -5px); }
+
+.success { text-align: center; padding-block: 3.5rem; animation: pop .7s var(--ease) both; }
+@keyframes pop { from { opacity: 0; transform: scale(.95); } }
+.successIcon { width: 4.4rem; height: 4.4rem; margin: 0 auto 1.4rem; display: grid; place-items: center; border-radius: 50%; font-size: 2rem; color: #1a0a04; background: var(--brass); box-shadow: 0 0 0 0 rgba(212, 169, 79, .6); animation: ring 2s ease-out infinite; }
+@keyframes ring { to { box-shadow: 0 0 0 26px rgba(212, 169, 79, 0); } }
+.success h3 { font: 900 2.2rem/1 var(--display); text-transform: uppercase; margin-bottom: .6rem; }
+.success p { color: var(--bone-dim); font-style: italic; }
+@media (prefers-reduced-motion: reduce) { .successIcon { animation: none; } }
