@@ -2,6 +2,7 @@
 import { useLang } from "@/lib/LangContext";
 import { t } from "@/lib/translations";
 import styles from "./Footer.module.css";
+import SweGBGCredit from "./SweGBGCredit";
 
 export default function Footer() {
   const { lang } = useLang();
@@ -28,6 +29,7 @@ export default function Footer() {
           <span>{tr.orgnr}</span>
         </div>
       </div>
+      <SweGBGCredit lang={lang} endGap="5.5rem" accent="#d4a94f" text="rgba(237,228,214,.5)" line="rgba(212,169,79,.22)" />
     </footer>
   );
 }

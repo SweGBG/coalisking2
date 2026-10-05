@@ -1,0 +1,5 @@
+.row { position: relative; z-index: 2; display: flex; justify-content: flex-end; width: 100%; max-width: 1240px; margin: 0 auto; padding: 1rem clamp(1rem, 4vw, 2rem) 1.2rem; }
+.credit { display: inline-flex; align-items: center; gap: .35rem; padding: .38rem .8rem; border: 1px solid var(--cr-line); border-radius: 999px; font: 400 .72rem/1 system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: .04em; color: var(--cr-text); text-decoration: none; transition: border-color .3s, color .3s; }
+.credit b { font-weight: 700; letter-spacing: .06em; color: var(--cr-text); transition: color .3s; }
+.credit:hover { border-color: var(--cr-accent); }
+.credit:hover b { color: var(--cr-accent); }
