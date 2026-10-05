@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import "@fontsource/big-shoulders-display/600";
 import "@fontsource/big-shoulders-display/800";
@@ -113,6 +114,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
         <LangProvider>{children}</LangProvider>
+        <Analytics />
       </body>
     </html>
   );
