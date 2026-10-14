@@ -12,6 +12,7 @@ export default function ScrollProgress() {
   const tip = useRef<HTMLDivElement>(null);
   const temp = useRef<HTMLSpanElement>(null);
   const bar = useRef<HTMLDivElement>(null);
+  const gauge = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let ticking = false;
@@ -23,6 +24,10 @@ export default function ScrollProgress() {
       if (fill.current) fill.current.style.clipPath = `inset(${(1 - p) * 100}% 0 0 0)`;
       if (tip.current) tip.current.style.bottom = `${p * 100}%`;
       if (bar.current) bar.current.style.clipPath = `inset(0 ${(1 - p) * 100}% 0 0)`;
+      // The film hero has its own thermometer: keep this one hidden until the film is over.
+      const film = document.getElementById("top");
+      const inFilm = film ? film.getBoundingClientRect().bottom > window.innerHeight * 1.02 : false;
+      if (gauge.current) gauge.current.style.opacity = inFilm ? "0" : "1";
       const c = Math.round(20 + p * 780);
       if (c !== shown && temp.current) {
         shown = c;
@@ -44,7 +49,7 @@ export default function ScrollProgress() {
   return (
     <>
       <div className={styles.topbar} aria-hidden="true"><div ref={bar} className={styles.topfill} /></div>
-      <div className={styles.gauge} aria-hidden="true">
+      <div ref={gauge} className={styles.gauge} aria-hidden="true" style={{ transition: "opacity .6s" }}>
         <div className={styles.track}>
           <div ref={fill} className={styles.fill} />
           <div ref={tip} className={styles.tip}>

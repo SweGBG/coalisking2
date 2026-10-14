@@ -2,6 +2,38 @@ export type Lang = "sv" | "en";
 
 export const t = {
   sv: {
+    film: {
+      kicker: "Authentic Charcoal Grill · Stockholm",
+      title1: "KOL ÄR",
+      title2: "KUNG",
+      lead: "Ingen gas. Ingen ugn. Bara glöd, eld och kött – grillat vid 800 grader så som det alltid borde smaka.",
+      cta1: "Se menyn",
+      cta2: "Boka bord",
+      scroll: "Scrolla och tänd grillen",
+      temp: "Grilltemperatur",
+      chapters: [
+        { n: "01", name: "Glöden", h: "Allt börjar i mörkret.", p: "Ek- och hickorykol som tänds långsamt tills hela bädden glöder orange. Vi har aldrig bråttom med elden." },
+        { n: "02", name: "Köttet", h: "Mötet med gallret.", p: "Dry-agat i 28 dagar och lagt på gjutjärn när glöden står på topp. Ljudet säger allt." },
+        { n: "03", name: "Elden", h: "Skorpan som gör skillnad.", p: "Fettet droppar, lågan slår upp och Maillard-reaktionen gör resten. Rök, karamell och djup." },
+        { n: "04", name: "Kungen", h: "Serverad som en kung.", p: "Smält smör, färsk rosmarin och flingsalt. Vila några minuter – sedan är den din." },
+      ],
+    },
+    fire: {
+      eyebrow: "— Vår filosofi",
+      words: "Ingen gas. Ingen ugn. Inga genvägar. Bara äkta kol, rätt tid och en eld som når åttahundra grader.",
+    },
+    sig: {
+      eyebrow: "— Från elden",
+      title: "KUNGENS FAVORITER",
+      hint: "Fortsätt scrolla",
+      items: [
+        { name: "Ribeye 300g", desc: "Dry-aged 28 dagar, tryffelsmör, rosmarinjus", price: "395 kr", img: "/img/dish-ribeye.webp" },
+        { name: "Tomahawk 1,2 kg", desc: "För två att dela. Benfast, flambérad vid bordet, chimichurri", price: "895 kr", img: "/img/dish-tomahawk.webp" },
+        { name: "T-bone 500g", desc: "Grillad på hög värme, chimichurri, citron", price: "445 kr", img: "/img/dish-tbone.webp" },
+        { name: "Burnt Ends", desc: "Fläsksida, karamelliserad bbq, melass, syrad gurka", price: "295 kr", img: "/img/dish-burnt.webp" },
+      ],
+      cta: "Hela menyn",
+    },
     nav: {
       menu: "Meny", about: "Om oss", gallery: "Galleri", contact: "Kontakt",
       book: "Boka bord",
@@ -35,6 +67,7 @@ export const t = {
         { cat: "Förrätter", name: "Kolgrillade Räkor", desc: "Vitlökssmör, chili, pressad citron", price: "145 kr", tag: "Populär" },
         { cat: "Förrätter", name: "Rökt Oxbringa Slider", desc: "Brioche, picklad rödlök, chipotlemajo", price: "135 kr", tag: "" },
         { cat: "Från grillen", name: "Ribeye 300g", desc: "Dry-aged 28 dagar, tryffelsmör, rosmarinjus", price: "395 kr", tag: "Kung" },
+        { cat: "Från grillen", name: "Tomahawk 1,2 kg", desc: "För två att dela, flamberad vid bordet, chimichurri", price: "895 kr", tag: "Kung" },
         { cat: "Från grillen", name: "T-bone 500g", desc: "Grillad på hög värme, chimichurri, citron", price: "445 kr", tag: "" },
         { cat: "Från grillen", name: "Lammbiff 250g", desc: "Marockansk krydda, myntayoghurt, grillad paprika", price: "345 kr", tag: "Populär" },
         { cat: "Från grillen", name: "Hel Grillkyckling", desc: "Piri-piri marinad, 4h på grillen, mojo verde", price: "285 kr", tag: "" },
@@ -103,6 +136,38 @@ export const t = {
   },
 
   en: {
+    film: {
+      kicker: "Authentic Charcoal Grill · Stockholm",
+      title1: "COAL IS",
+      title2: "KING",
+      lead: "No gas. No oven. Just embers, fire and meat – grilled at 800 degrees the way it was always meant to taste.",
+      cta1: "View menu",
+      cta2: "Book a table",
+      scroll: "Scroll to light the grill",
+      temp: "Grill temperature",
+      chapters: [
+        { n: "01", name: "The embers", h: "It all starts in the dark.", p: "Oak and hickory charcoal lit slowly until the whole bed glows orange. We never rush the fire." },
+        { n: "02", name: "The meat", h: "Meeting the grate.", p: "Dry-aged for 28 days and laid on cast iron when the embers peak. The sound says it all." },
+        { n: "03", name: "The flame", h: "The crust that matters.", p: "Fat drips, the flame flares and the Maillard reaction does the rest. Smoke, caramel and depth." },
+        { n: "04", name: "The king", h: "Served like a king.", p: "Melted butter, fresh rosemary and sea salt flakes. Rest a few minutes – then it's yours." },
+      ],
+    },
+    fire: {
+      eyebrow: "— Our philosophy",
+      words: "No gas. No oven. No shortcuts. Just real charcoal, the right time and a fire that reaches eight hundred degrees.",
+    },
+    sig: {
+      eyebrow: "— From the fire",
+      title: "THE KING'S FAVOURITES",
+      hint: "Keep scrolling",
+      items: [
+        { name: "Ribeye 300g", desc: "Dry-aged 28 days, truffle butter, rosemary jus", price: "395 SEK", img: "/img/dish-ribeye.webp" },
+        { name: "Tomahawk 1.2 kg", desc: "To share for two. On the bone, flambéed at the table, chimichurri", price: "895 SEK", img: "/img/dish-tomahawk.webp" },
+        { name: "T-bone 500g", desc: "High-heat grilled, chimichurri, lemon", price: "445 SEK", img: "/img/dish-tbone.webp" },
+        { name: "Burnt Ends", desc: "Pork belly, caramelised bbq, molasses, pickled cucumber", price: "295 SEK", img: "/img/dish-burnt.webp" },
+      ],
+      cta: "Full menu",
+    },
     nav: {
       menu: "Menu", about: "About", gallery: "Gallery", contact: "Contact",
       book: "Book a table",
@@ -136,6 +201,7 @@ export const t = {
         { cat: "Starters", name: "Charcoal Prawns", desc: "Garlic butter, chilli, fresh lemon", price: "145 SEK", tag: "Popular" },
         { cat: "Starters", name: "Smoked Brisket Slider", desc: "Brioche, pickled red onion, chipotle mayo", price: "135 SEK", tag: "" },
         { cat: "From the grill", name: "Ribeye 300g", desc: "Dry-aged 28 days, truffle butter, rosemary jus", price: "395 SEK", tag: "King" },
+        { cat: "From the grill", name: "Tomahawk 1.2 kg", desc: "To share for two, flambéed at the table, chimichurri", price: "895 SEK", tag: "King" },
         { cat: "From the grill", name: "T-bone 500g", desc: "High-heat grilled, chimichurri, lemon", price: "445 SEK", tag: "" },
         { cat: "From the grill", name: "Lamb chop 250g", desc: "Moroccan spice, mint yoghurt, grilled peppers", price: "345 SEK", tag: "Popular" },
         { cat: "From the grill", name: "Whole Grilled Chicken", desc: "Piri-piri marinade, 4h on the grill, mojo verde", price: "285 SEK", tag: "" },

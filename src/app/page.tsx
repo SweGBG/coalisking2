@@ -1,5 +1,8 @@
 import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
+import FilmHero from "@/components/FilmHero";
+import Philosophy from "@/components/Philosophy";
+import Signature from "@/components/Signature";
+import SmoothScroll from "@/components/SmoothScroll";
 import InfoBar from "@/components/InfoBar";
 import Marquee from "@/components/Marquee";
 import Menu from "@/components/Menu";
@@ -16,12 +19,15 @@ import BackToTop from "@/components/BackToTop";
 export default function Home() {
   return (
     <>
+      <SmoothScroll />
       <ScrollFadeIn />
       <ScrollProgress />
       <Navbar />
       <main>
-        <Hero />
+        <FilmHero />
         <InfoBar />
+        <Philosophy />
+        <Signature />
         <Marquee />
         <Menu />
         <About />

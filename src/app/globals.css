@@ -27,6 +27,9 @@
 }
 
 html { scroll-behavior: smooth; overflow-x: clip; }
+/* Lenis drives the scroll on desktop: native smooth scrolling would fight it */
+html.lenis-on { scroll-behavior: auto; }
+html.lenis-stopped { overflow: clip; }
 
 body {
   font-family: var(--serif);
