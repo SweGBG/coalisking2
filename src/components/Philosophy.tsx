@@ -38,9 +38,15 @@ export default function Philosophy() {
         <p className={styles.eyebrow}>{tr.eyebrow}</p>
         <p className={styles.words}>
           {words.map((w, i) => (
-            <span key={i} data-w className={styles.w}>{w}{" "}</span>
+            <span key={i}>
+              <span data-w className={styles.w}>{w}</span>{" "}
+            </span>
           ))}
         </p>
+        {/* hand-drawn flourish under the text, drawn as the last words are written */}
+        <svg className={styles.flourish} viewBox="0 0 600 40" aria-hidden preserveAspectRatio="none">
+          <path pathLength={1} d="M4 26 C 90 8, 180 34, 270 20 S 450 6, 596 18" />
+        </svg>
       </div>
     </section>
   );
