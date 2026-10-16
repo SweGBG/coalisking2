@@ -89,6 +89,9 @@
   .seg { width: 100%; height: 3px; }
   .seg i { transform-origin: left; transform: scaleX(var(--f)); }
   .btnLine { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(12, 10, 9, .55); }
+  /* an endlessly animated drop-shadow repaints the big title every frame: phones keep a static glow */
+  .t2 { animation: rise 1.1s .85s var(--ease) both; }
+  .intro, .chapter { will-change: opacity, transform; }
 }
 
 @media (prefers-reduced-motion: reduce) {

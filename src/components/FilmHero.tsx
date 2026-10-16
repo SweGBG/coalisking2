@@ -3,17 +3,17 @@ import { useEffect, useRef, useState } from "react";
 import { useLang } from "@/lib/LangContext";
 import { t } from "@/lib/translations";
 import EmberField from "./EmberField";
+import { crintro, nearestFrame, onCrintro, wantFrame, PHONE_QUERY } from "@/lib/crintro";
 import styles from "./FilmHero.module.css";
 
 /*
  * The film IS the hero: a sticky stage where the scroll scrubs a self-made AI film
  * (MiniMax H3) – cold coals ignite, the steak hits the grate, the flame flares, the king is served.
- * Desktop plays the mp4, phones draw a pre-decoded image sequence, and until the film
- * exists a real photo per chapter crossfades with a slow push-in.
+ * The CRiNTRO Loader (src/lib/crintro.ts) loads the film while the intro plays: desktop gets the
+ * mp4 as a local blob, phones get a streamed image sequence. If neither loads, a real photo per
+ * chapter crossfades with a slow push-in.
  */
-const VIDEO = "/video/coal-scene.mp4";
 const POSTER = "/video/coal-poster.webp";
-const FRAMES_MANIFEST = "/video/m/manifest.json";
 const PHOTOS = ["/img/ch-glod.webp", "/img/ch-kott.webp", "/img/ch-eld.webp", "/img/ch-kung.webp"];
 
 /** Scroll ranges (0–1) for the intro and the four chapters: [in, full, hold, out] */
@@ -47,32 +47,37 @@ export default function FilmHero() {
   const gauge = useRef<HTMLDivElement>(null);
   const heat = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<Mode | null>(null);
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [active, setActive] = useState(-1);
 
-  // Pick the media mode once: phone → image sequence, desktop → video, otherwise photos.
+  // Media mode comes from the CRiNTRO Loader: phone → image sequence, desktop → video, otherwise photos.
   useEffect(() => {
-    let off = false;
-    (async () => {
-      const phone = window.matchMedia("(max-width: 820px), (pointer: coarse)").matches;
-      const exists = async (u: string) => {
-        try { return (await fetch(u, { method: "HEAD" })).ok; } catch { return false; }
-      };
-      let m: Mode = "photos";
-      if (phone && (await exists(FRAMES_MANIFEST))) m = "frames";
-      else if (!phone && (await exists(VIDEO))) m = "video";
-      else if (await exists(FRAMES_MANIFEST)) m = "frames";
-      if (!off) setMode(m);
-    })();
-    return () => { off = true; };
+    const store = crintro();
+    const sync = () => {
+      setMode(store.mode === "frames" ? "frames" : store.mode === "video" ? "video" : store.mode === "failed" ? "photos" : null);
+      setVideoSrc(store.videoUrl);
+    };
+    sync();
+    return onCrintro(sync);
   }, []);
 
   useEffect(() => {
     if (!mode) return;
     const el = root.current!;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let target = 0, cur = 0, raf = 0, lastSeek = 0, lastFrame = -1, lastActive = -2, lastTemp = -1;
-    let frames: HTMLImageElement[] = [];
-    let ready: boolean[] = [];
+    // Phones skip the per-frame blur on the text layers: blur is the most expensive thing to animate there.
+    const lite = window.matchMedia(PHONE_QUERY).matches;
+    let target = 0, cur = 0, raf = 0, lastSeek = 0, lastActive = -2, lastTemp = -1, last = performance.now();
+    let lastImg: CanvasImageSource | null = null;
+    // Only touch the DOM when a value really changed (saves style recalculation every frame).
+    const put = (el: HTMLElement, prop: string, val: string) => {
+      const box = el as HTMLElement & { _c?: Record<string, string> };
+      box._c ??= {};
+      if (box._c[prop] !== val) {
+        box._c[prop] = val;
+        el.style.setProperty(prop, val);
+      }
+    };
     const cv = canvas.current;
     const ctx = cv?.getContext("2d") ?? null;
 
@@ -81,48 +86,33 @@ export default function FilmHero() {
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       cv.width = Math.round(cv.clientWidth * dpr);
       cv.height = Math.round(cv.clientHeight * dpr);
-      lastFrame = -1;
+      lastImg = null;
     };
-    if (mode === "frames") {
-      fetch(FRAMES_MANIFEST)
-        .then((r) => r.json())
-        .then((mf: { count: number; pattern: string }) => {
-          ready = new Array(mf.count).fill(false);
-          frames = Array.from({ length: mf.count }, (_, i) => {
-            const img = new Image();
-            img.src = mf.pattern.replace("%03d", String(i + 1).padStart(3, "0"));
-            img.decode().then(() => { ready[i] = true; lastFrame = -1; }).catch(() => {});
-            return img;
-          });
-        })
-        .catch(() => setMode("photos"));
-    }
     fit();
     window.addEventListener("resize", fit);
 
-    const drawFrame = (p: number) => {
-      if (!ctx || !cv || !frames.length) return;
-      const want = Math.round(p * (frames.length - 1));
-      if (want === lastFrame) return;
-      let best = -1;
-      for (let d = 0; d < frames.length; d++) {
-        if (ready[want - d]) { best = want - d; break; }
-        if (ready[want + d]) { best = want + d; break; }
-      }
-      if (best < 0) return;
-      const img = frames[best];
-      const s = Math.max(cv.width / img.naturalWidth, cv.height / img.naturalHeight);
-      const w = img.naturalWidth * s, h = img.naturalHeight * s;
+    const drawFrame = (p: number, count: number) => {
+      if (!ctx || !cv || !count) return;
+      const want = Math.round(p * (count - 1));
+      wantFrame(want);
+      const img = nearestFrame(want);
+      if (!img || img === lastImg) return;
+      lastImg = img;
+      const s = Math.max(cv.width / img.width, cv.height / img.height);
+      const w = img.width * s, h = img.height * s;
       ctx.drawImage(img, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
-      lastFrame = want;
     };
 
     const tick = (now: number) => {
-      cur += (target - cur) * (reduce ? 1 : 0.1);
+      const dt = Math.min(0.1, (now - last) / 1000);
+      last = now;
+      // glide toward the scroll position at the same speed on 60 and 120 Hz screens
+      cur += (target - cur) * (reduce ? 1 : 1 - Math.pow(0.9, dt * 60));
+      if (Math.abs(target - cur) < 0.00005) cur = target;
       const p = clamp(cur);
 
       // the film slowly settles: starts slightly zoomed, ends at rest
-      if (media.current) media.current.style.transform = `scale(${1.1 - 0.1 * p})`;
+      if (media.current) put(media.current, "transform", `scale(${(1.1 - 0.1 * p).toFixed(4)})`);
 
       // the grill heats up with the scroll: 20 °C → 800 °C
       const deg = Math.round(20 + 780 * ease(clamp(p / 0.9)));
@@ -134,24 +124,24 @@ export default function FilmHero() {
       }
 
       if (intro.current) {
-        const o = vis(p, INTRO);
-        intro.current.style.opacity = String(o);
-        intro.current.style.transform = `translate3d(0, ${(1 - o) * -40}px, 0) scale(${0.94 + o * 0.06})`;
-        intro.current.style.filter = o < 1 ? `blur(${(1 - o) * 10}px)` : "none";
-        intro.current.style.visibility = o > 0.01 ? "visible" : "hidden";
+        const o = +vis(p, INTRO).toFixed(3);
+        put(intro.current, "opacity", String(o));
+        put(intro.current, "transform", `translate3d(0, ${((1 - o) * -40).toFixed(1)}px, 0) scale(${(0.94 + o * 0.06).toFixed(3)})`);
+        if (!lite) put(intro.current, "filter", o < 1 ? `blur(${((1 - o) * 10).toFixed(1)}px)` : "none");
+        put(intro.current, "visibility", o > 0.01 ? "visible" : "hidden");
       }
       layers.current.forEach((l, i) => {
         if (!l) return;
-        const o = vis(p, CH[i]);
-        l.style.opacity = String(o);
-        l.style.transform = `translate3d(0, ${(1 - o) * 30}px, 0)`;
-        l.style.filter = o < 1 ? `blur(${(1 - o) * 6}px)` : "none";
-        l.style.visibility = o > 0.01 ? "visible" : "hidden";
+        const o = +vis(p, CH[i]).toFixed(3);
+        put(l, "opacity", String(o));
+        put(l, "transform", `translate3d(0, ${((1 - o) * 30).toFixed(1)}px, 0)`);
+        if (!lite) put(l, "filter", o < 1 ? `blur(${((1 - o) * 6).toFixed(1)}px)` : "none");
+        put(l, "visibility", o > 0.01 ? "visible" : "hidden");
       });
       segs.current.forEach((s, i) => {
         if (!s) return;
         const [a, b] = SPAN[i];
-        s.style.setProperty("--f", String(clamp((p - a) / (b - a))));
+        put(s, "--f", clamp((p - a) / (b - a)).toFixed(3));
       });
       const act = p < 0.08 ? -1 : SPAN.findIndex(([a, b]) => p >= a && p < b + (b === 1 ? 0.01 : 0));
       if (act !== lastActive) { lastActive = act; setActive(act); }
@@ -166,7 +156,7 @@ export default function FilmHero() {
           }
         }
       } else if (mode === "frames") {
-        drawFrame(p);
+        drawFrame(p, crintro().count);
       } else {
         // photo fallback: crossfade between chapter photos with a slow push-in
         photos.current.forEach((img, i) => {
@@ -187,13 +177,15 @@ export default function FilmHero() {
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
       window.removeEventListener("resize", fit);
     };
-  }, [mode]);
+  }, [mode, videoSrc]);
 
   const jump = (i: number) => {
     const el = root.current;
@@ -207,12 +199,13 @@ export default function FilmHero() {
       <div className={styles.stage}>
         <div className={styles.media} ref={media}>
           {mode === "video" && (
-            <video ref={video} className={styles.fill} src={VIDEO} poster={POSTER} muted playsInline preload="auto" />
+            <video ref={video} className={styles.fill} src={videoSrc ?? undefined} poster={POSTER} muted playsInline preload="auto" />
           )}
           <canvas ref={canvas} className={`${styles.fill} ${styles.canvas}`} hidden={mode !== "frames"} />
           {(mode === "photos" || mode === null) && (
             <div className={styles.fill}>
-              {PHOTOS.map((src, i) => (
+              {/* only the first photo until we know the film can't load: phones shouldn't download all four */}
+              {PHOTOS.slice(0, mode === "photos" ? PHOTOS.length : 1).map((src, i) => (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img key={src} ref={(n) => { photos.current[i] = n; }} className={styles.photo} src={src} alt="" style={{ opacity: i === 0 ? 1 : 0 }} fetchPriority={i === 0 ? "high" : "low"} />
               ))}
@@ -223,7 +216,7 @@ export default function FilmHero() {
         <div className={styles.shade} aria-hidden />
         <EmberField />
 
-        <div className={styles.intro} ref={intro}>
+        <div className={styles.intro} ref={intro} data-crintro-hold>
           <p className={styles.kicker}>{tr.kicker}</p>
           <h1 className={styles.title}>
             <span className={styles.t1}>{tr.title1}</span>

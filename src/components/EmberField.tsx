@@ -18,7 +18,8 @@ export default function EmberField() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const isMobile = window.innerWidth < 768;
+    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
     let w = 0, h = 0;
     const resize = () => {
       const r = canvas.getBoundingClientRect();
@@ -29,7 +30,6 @@ export default function EmberField() {
     };
     resize();
 
-    const isMobile = window.innerWidth < 768;
     const COUNT = isMobile ? 22 : 42;
 
     type P = { x:number; y:number; r:number; vy:number; vx:number; life:number; max:number; hue:number };
@@ -46,35 +46,50 @@ export default function EmberField() {
     });
     for (let i = 0; i < COUNT; i++) parts.push(spawn(true));
 
+    // Pre-rendered glow sprites (one per hue band): drawing an image is far cheaper than
+    // building a new radial gradient for every particle on every frame.
+    const SPR = 64;
+    const sprites = [8, 14, 20, 26, 32].map((hue) => {
+      const c = document.createElement("canvas");
+      c.width = c.height = SPR;
+      const g2 = c.getContext("2d")!;
+      const g = g2.createRadialGradient(SPR / 2, SPR / 2, 0, SPR / 2, SPR / 2, SPR / 2);
+      g.addColorStop(0, `hsla(${hue}, 95%, 62%, 1)`);
+      g.addColorStop(0.5, `hsla(${hue}, 90%, 48%, .35)`);
+      g.addColorStop(1, "hsla(10, 90%, 40%, 0)");
+      g2.fillStyle = g;
+      g2.fillRect(0, 0, SPR, SPR);
+      return c;
+    });
+
     let raf = 0;
     let running = true;
     let t = 0;
+    let last = performance.now();
 
-    const tick = () => {
+    const tick = (now: number = performance.now()) => {
       if (!running) return;
-      t++;
+      // time-based, so embers rise at the same speed on 60 and 120 Hz screens
+      const f = Math.min(3, (now - last) / (1000 / 60));
+      last = now;
+      t += f;
       ctx.clearRect(0, 0, w, h);
       for (let i = 0; i < parts.length; i++) {
         const p = parts[i];
-        p.life++;
-        p.y -= p.vy;
-        p.x += p.vx + Math.sin((t + i * 37) * 0.01) * 0.18;
-        const fade = Math.sin(Math.min(p.life / p.max, 1) * Math.PI); // in → ut
+        p.life += f;
+        p.y -= p.vy * f;
+        p.x += (p.vx + Math.sin((t + i * 37) * 0.01) * 0.18) * f;
         if (p.life >= p.max || p.y < -10) { parts[i] = spawn(); continue; }
-        const a = fade * 0.75;
-        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3.2);
-        g.addColorStop(0, `hsla(${p.hue}, 95%, 62%, ${a})`);
-        g.addColorStop(0.5, `hsla(${p.hue}, 90%, 48%, ${a * 0.35})`);
-        g.addColorStop(1, "hsla(10, 90%, 40%, 0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r * 3.2, 0, Math.PI * 2);
-        ctx.fill();
+        const fade = Math.sin(Math.min(p.life / p.max, 1) * Math.PI); // in → ut
+        const r = p.r * 3.2;
+        ctx.globalAlpha = fade * 0.75;
+        ctx.drawImage(sprites[Math.min(4, Math.floor((p.hue - 8) / 6))], p.x - r, p.y - r, r * 2, r * 2);
       }
+      ctx.globalAlpha = 1;
       raf = requestAnimationFrame(tick);
     };
 
-    const start = () => { if (!running) { running = true; raf = requestAnimationFrame(tick); } };
+    const start = () => { if (!running) { running = true; last = performance.now(); raf = requestAnimationFrame(tick); } };
     const stop = () => { running = false; cancelAnimationFrame(raf); };
 
     raf = requestAnimationFrame(tick);

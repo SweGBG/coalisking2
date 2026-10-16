@@ -15,7 +15,7 @@ export default function Footer() {
       </div>
       <div className={styles.inner}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="Coal is King" className={styles.logo} />
+        <img src="/logo.png" alt="Coal is King" className={styles.logo} loading="lazy" decoding="async" />
         <p className={styles.tagline}>{tr.tagline}</p>
         <div className={styles.divider} />
         <div className={styles.links}>

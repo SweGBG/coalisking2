@@ -1,3 +1,4 @@
+import CrintroLoader from "@/components/CrintroLoader";
 import Navbar from "@/components/Navbar";
 import FilmHero from "@/components/FilmHero";
 import Philosophy from "@/components/Philosophy";
@@ -19,6 +20,7 @@ import BackToTop from "@/components/BackToTop";
 export default function Home() {
   return (
     <>
+      <CrintroLoader />
       <SmoothScroll />
       <ScrollFadeIn />
       <ScrollProgress />

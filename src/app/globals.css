@@ -97,3 +97,8 @@ section[id] { scroll-margin-top: 4.5rem; }
   [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
   .ember-sheen { color: var(--bone) !important; animation: none !important; }
 }
+
+/* CRiNTRO Loader: while the loader is up, the hero's entrance waits and the page holds still */
+html.crintro-wait { overflow: hidden; }
+html.crintro-wait [data-crintro-hold], html.crintro-wait [data-crintro-hold] * { animation-play-state: paused !important; }
+@media (prefers-reduced-motion: reduce) { html.crintro-wait { overflow: auto; } }
