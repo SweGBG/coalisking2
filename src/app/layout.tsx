@@ -26,13 +26,13 @@ export const metadata: Metadata = {
     siteName: "Coal is King",
     title: "Coal is King — Authentic Charcoal Grill Stockholm",
     description: "Äkta kolgrillat kött vid 800°C. Ribeye, T-bone, burnt ends — boka bord på Kungsgatan 14, Stockholm.",
-    images: [{ url: "/logo.png", width: 1200, height: 630, alt: "Coal is King" }],
+    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "Coal is King" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Coal is King — Authentic Charcoal Grill Stockholm",
     description: "Äkta kolgrillat kött vid 800°C i Stockholm.",
-    images: ["/logo.png"],
+    images: ["/og.jpg"],
   },
   robots: { index: true, follow: true },
 };

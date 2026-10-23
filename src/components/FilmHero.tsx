@@ -217,6 +217,8 @@ export default function FilmHero() {
         <EmberField />
 
         <div className={styles.intro} ref={intro} data-crintro-hold>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.webp" alt="Coal is King" className={styles.logo} width={813} height={794} fetchPriority="high" decoding="async" />
           <p className={styles.kicker}>{tr.kicker}</p>
           <h1 className={styles.title}>
             <span className={styles.t1}>{tr.title1}</span>
