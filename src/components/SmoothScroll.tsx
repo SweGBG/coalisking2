@@ -15,7 +15,12 @@ export default function SmoothScroll() {
     const lock = new MutationObserver(() => (document.body.style.overflow === "hidden" ? lenis.stop() : lenis.start()));
     lock.observe(document.body, { attributes: true, attributeFilter: ["style"] });
     document.documentElement.classList.add("lenis-on");
-    return () => { cancelAnimationFrame(raf); lock.disconnect(); lenis.destroy(); document.documentElement.classList.remove("lenis-on"); };
+    // the film hero's brand reveal pauses the page for a moment and needs to move Lenis with it
+    (window as Window & { __lenis?: Lenis }).__lenis = lenis;
+    return () => {
+      cancelAnimationFrame(raf); lock.disconnect(); lenis.destroy(); document.documentElement.classList.remove("lenis-on");
+      delete (window as Window & { __lenis?: Lenis }).__lenis;
+    };
   }, []);
   return null;
 }

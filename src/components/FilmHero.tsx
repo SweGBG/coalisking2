@@ -12,20 +12,39 @@ import styles from "./FilmHero.module.css";
  * The CRiNTRO Loader (src/lib/crintro.ts) loads the film while the intro plays: desktop gets the
  * mp4 as a local blob, phones get a streamed image sequence. If neither loads, a real photo per
  * chapter crossfades with a slow push-in.
+ *
+ * Brand reveal: the film starts clean (only a scroll hint), chapters 01–03 tell the story while it
+ * plays, then the film stops on its last frame, the scene darkens, the Coal is King emblem gathers out
+ * of sparks and lands, and the name, tagline and buttons rise in beside it. The first time, the page
+ * holds still for a moment so the logo can settle.
  */
 const POSTER = "/video/coal-poster.webp";
 const PHOTOS = ["/img/ch-glod.webp", "/img/ch-kott.webp", "/img/ch-eld.webp", "/img/ch-kung.webp"];
 
-/** Scroll ranges (0–1) for the intro and the four chapters: [in, full, hold, out] */
+/** Scroll progress (0–1 through the hero) */
+const START_END = 0.05; // clean film, only the hint
+const FILM_END = 0.78; // the film is done: the last frame stays
+const REVEAL_AT = 0.76; // the brand pops
+const HOLD_AT = 0.8; // the page stands still here (first time)
+const HOLD_MS = 2600;
+
+/** Scroll ranges (0–1) for the hint and the three film chapters: [in, full, hold, out] */
 type R = [number, number, number, number];
-const INTRO: R = [-1, 0, 0.05, 0.12];
+const HINT: R = [-1, 0, 0.02, 0.06];
 const CH: R[] = [
-  [0.1, 0.14, 0.2, 0.25],
-  [0.29, 0.33, 0.45, 0.5],
-  [0.54, 0.58, 0.7, 0.75],
-  [0.84, 0.9, 2, 2],
+  [0.07, 0.11, 0.22, 0.27],
+  [0.29, 0.33, 0.44, 0.49],
+  [0.51, 0.55, 0.66, 0.71],
 ];
-const SPAN: [number, number][] = [[0, 0.27], [0.27, 0.52], [0.52, 0.8], [0.8, 1]];
+/** Chapter navigator: three film chapters, the fourth ("the king") is the brand reveal */
+const SPAN: [number, number][] = [[START_END, 0.28], [0.28, 0.5], [0.5, REVEAL_AT], [REVEAL_AT, HOLD_AT]];
+
+/** Sparks that gather into the emblem: [x, y, delay] */
+const SPARKS: [string, string, string][] = [
+  ["-180px", "-120px", "0s"], ["170px", "-140px", ".05s"], ["-220px", "40px", ".1s"], ["230px", "70px", ".02s"],
+  ["-90px", "170px", ".12s"], ["110px", "180px", ".08s"], ["-40px", "-200px", ".15s"], ["60px", "-190px", ".04s"],
+  ["-260px", "-30px", ".09s"], ["270px", "-20px", ".13s"], ["-150px", "150px", ".06s"], ["160px", "120px", ".11s"],
+];
 
 type Mode = "video" | "frames" | "photos";
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -40,7 +59,7 @@ export default function FilmHero() {
   const video = useRef<HTMLVideoElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const photos = useRef<(HTMLImageElement | null)[]>([]);
-  const intro = useRef<HTMLDivElement>(null);
+  const hint = useRef<HTMLDivElement>(null);
   const layers = useRef<(HTMLDivElement | null)[]>([]);
   const segs = useRef<(HTMLButtonElement | null)[]>([]);
   const temp = useRef<HTMLSpanElement>(null);
@@ -69,6 +88,7 @@ export default function FilmHero() {
     const lite = window.matchMedia(PHONE_QUERY).matches;
     let target = 0, cur = 0, raf = 0, lastSeek = 0, lastActive = -2, lastTemp = -1, last = performance.now();
     let lastImg: CanvasImageSource | null = null;
+    let brandOn = el.hasAttribute("data-brand");
     // Only touch the DOM when a value really changed (saves style recalculation every frame).
     const put = (el: HTMLElement, prop: string, val: string) => {
       const box = el as HTMLElement & { _c?: Record<string, string> };
@@ -110,12 +130,14 @@ export default function FilmHero() {
       cur += (target - cur) * (reduce ? 1 : 1 - Math.pow(0.9, dt * 60));
       if (Math.abs(target - cur) < 0.00005) cur = target;
       const p = clamp(cur);
+      // the film plays until FILM_END, then its last frame stays for the brand reveal
+      const fp = Math.min(1, p / FILM_END);
 
       // the film slowly settles: starts slightly zoomed, ends at rest
-      if (media.current) put(media.current, "transform", `scale(${(1.1 - 0.1 * p).toFixed(4)})`);
+      if (media.current) put(media.current, "transform", `scale(${(1.1 - 0.1 * fp).toFixed(4)})`);
 
-      // the grill heats up with the scroll: 20 °C → 800 °C
-      const deg = Math.round(20 + 780 * ease(clamp(p / 0.9)));
+      // the grill heats up with the film: 20 °C → 800 °C
+      const deg = Math.round(20 + 780 * ease(clamp(fp / 0.95)));
       if (deg !== lastTemp) {
         lastTemp = deg;
         if (temp.current) temp.current.textContent = String(deg);
@@ -123,12 +145,19 @@ export default function FilmHero() {
         if (heat.current) heat.current.style.opacity = String(0.15 + 0.85 * ((deg - 20) / 780));
       }
 
-      if (intro.current) {
-        const o = +vis(p, INTRO).toFixed(3);
-        put(intro.current, "opacity", String(o));
-        put(intro.current, "transform", `translate3d(0, ${((1 - o) * -40).toFixed(1)}px, 0) scale(${(0.94 + o * 0.06).toFixed(3)})`);
-        if (!lite) put(intro.current, "filter", o < 1 ? `blur(${((1 - o) * 10).toFixed(1)}px)` : "none");
-        put(intro.current, "visibility", o > 0.01 ? "visible" : "hidden");
+      if (hint.current) {
+        const o = +vis(p, HINT).toFixed(3);
+        put(hint.current, "opacity", String(o));
+        put(hint.current, "visibility", o > 0.01 ? "visible" : "hidden");
+      }
+      // the brand: on while the film stands still at the end
+      const on = p >= REVEAL_AT;
+      if (on !== brandOn) {
+        brandOn = on;
+        if (on) {
+          el.setAttribute("data-brand", "");
+          el.setAttribute("data-played", "");
+        } else el.removeAttribute("data-brand");
       }
       layers.current.forEach((l, i) => {
         if (!l) return;
@@ -143,27 +172,27 @@ export default function FilmHero() {
         const [a, b] = SPAN[i];
         put(s, "--f", clamp((p - a) / (b - a)).toFixed(3));
       });
-      const act = p < 0.08 ? -1 : SPAN.findIndex(([a, b]) => p >= a && p < b + (b === 1 ? 0.01 : 0));
+      const act = p < START_END ? -1 : p >= REVEAL_AT ? 3 : SPAN.findIndex(([a, b]) => p >= a && p < b);
       if (act !== lastActive) { lastActive = act; setActive(act); }
 
       if (mode === "video" && video.current) {
         const v = video.current;
         if (v.duration) {
-          const want = p * (v.duration - 0.05);
+          const want = fp * (v.duration - 0.05);
           if (Math.abs(v.currentTime - want) > 1 / 30 && now - lastSeek > 16) {
             v.currentTime = want;
             lastSeek = now;
           }
         }
       } else if (mode === "frames") {
-        drawFrame(p, crintro().count);
+        drawFrame(fp, crintro().count);
       } else {
         // photo fallback: crossfade between chapter photos with a slow push-in
         photos.current.forEach((img, i) => {
           if (!img) return;
-          const [a, b] = SPAN[i];
-          const fadeIn = i === 0 ? 1 : clamp((p - (a - 0.04)) / 0.08);
-          const local = clamp((p - a) / (b - a));
+          const a = i / PHOTOS.length, b = (i + 1) / PHOTOS.length;
+          const fadeIn = i === 0 ? 1 : clamp((fp - (a - 0.04)) / 0.08);
+          const local = clamp((fp - a) / (b - a));
           img.style.opacity = String(fadeIn);
           img.style.transform = `scale(${1.02 + local * 0.12})`;
         });
@@ -171,16 +200,81 @@ export default function FilmHero() {
       raf = requestAnimationFrame(tick);
     };
 
+    // ---- The hold: the first time the brand is reached, the page stands still while the logo lands ----
+    type LenisLike = { scrollTo: (y: number, o?: { immediate?: boolean; force?: boolean }) => void };
+    const lenis = () => (window as Window & { __lenis?: LenisLike }).__lenis;
+    let held = el.hasAttribute("data-played"), release: (() => void) | null = null, timer = 0;
+    const heroY = (q: number) => el.offsetTop + q * (el.offsetHeight - window.innerHeight);
+    const hold = () => {
+      held = true;
+      const y = Math.round(heroY(HOLD_AT));
+      const l = lenis();
+      if (l) l.scrollTo(y, { immediate: true, force: true });
+      else window.scrollTo({ top: y, behavior: "instant" });
+      el.setAttribute("data-holding", "");
+      // capture phase: Lenis (listening on window) never sees the wheel while we hold
+      const block = (e: Event) => { e.preventDefault(); e.stopImmediatePropagation(); };
+      const keys = (e: KeyboardEvent) => { if ([" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) block(e); };
+      const pin = () => { if (Math.abs(window.scrollY - y) > 1) window.scrollTo(0, y); };
+      const opts = { passive: false, capture: true } as const;
+      window.addEventListener("wheel", block, opts);
+      window.addEventListener("touchmove", block, opts);
+      window.addEventListener("keydown", keys, true);
+      window.addEventListener("scroll", pin, true);
+      release = () => {
+        window.removeEventListener("wheel", block, opts);
+        window.removeEventListener("touchmove", block, opts);
+        window.removeEventListener("keydown", keys, true);
+        window.removeEventListener("scroll", pin, true);
+        lenis()?.scrollTo(window.scrollY, { immediate: true, force: true });
+        el.removeAttribute("data-holding");
+        release = null;
+      };
+      timer = window.setTimeout(() => release?.(), HOLD_MS);
+    };
+    // A menu jump (anchor link or chapter button) glides straight through the hero: no hold then.
+    const glide = () => { skipUntil = performance.now() + 2500; };
+    let skipUntil = 0;
+    const onClick = (e: MouseEvent) => {
+      if ((e.target as Element | null)?.closest?.("a[href^='#'], [data-jump]")) glide();
+    };
+    document.addEventListener("click", onClick, true);
+    el.addEventListener("hero-jump", glide);
+
     const onScroll = () => {
       const r = el.getBoundingClientRect();
       target = clamp(-r.top / (r.height - window.innerHeight));
+      if (!held && !reduce && target >= REVEAL_AT && target < 0.95 && performance.now() > skipUntil) hold();
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
     raf = requestAnimationFrame(tick);
+
+    // Pointer: the emblem tilts toward the mouse and a hot spot follows it (mouse only)
+    const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches && !reduce;
+    let mx = 0, my = 0, tx = 0, ty = 0, praf = 0;
+    const glow = () => {
+      mx += (tx - mx) * 0.12; my += (ty - my) * 0.12;
+      put(el, "--mx", mx.toFixed(3)); put(el, "--my", my.toFixed(3));
+      praf = Math.abs(tx - mx) + Math.abs(ty - my) > 0.002 ? requestAnimationFrame(glow) : 0;
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!el.hasAttribute("data-brand")) return;
+      tx = clamp((e.clientX / window.innerWidth) * 2 - 1, -1, 1);
+      ty = clamp((e.clientY / window.innerHeight) * 2 - 1, -1, 1);
+      if (!praf) praf = requestAnimationFrame(glow);
+    };
+    if (fine) window.addEventListener("pointermove", onMove, { passive: true });
+
     return () => {
       cancelAnimationFrame(raf);
+      cancelAnimationFrame(praf);
+      window.clearTimeout(timer);
+      release?.();
+      document.removeEventListener("click", onClick, true);
+      el.removeEventListener("hero-jump", glide);
+      window.removeEventListener("pointermove", onMove);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       window.removeEventListener("resize", fit);
@@ -190,7 +284,8 @@ export default function FilmHero() {
   const jump = (i: number) => {
     const el = root.current;
     if (!el) return;
-    const p = CH[i][1] + 0.02;
+    el.dispatchEvent(new Event("hero-jump"));
+    const p = i < CH.length ? CH[i][1] + 0.02 : HOLD_AT;
     window.scrollTo({ top: el.offsetTop + p * (el.offsetHeight - window.innerHeight), behavior: "smooth" });
   };
 
@@ -216,36 +311,54 @@ export default function FilmHero() {
         <div className={styles.shade} aria-hidden />
         <EmberField />
 
-        <div className={styles.intro} ref={intro} data-crintro-hold>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.webp" alt="Coal is King" className={styles.logo} width={813} height={794} fetchPriority="high" decoding="async" />
-          <p className={styles.kicker}>{tr.kicker}</p>
-          <h1 className={styles.title}>
-            <span className={styles.t1}>{tr.title1}</span>
-            <span className={styles.t2}>{tr.title2}</span>
-          </h1>
-          <p className={styles.lead}>{tr.lead}</p>
-          <div className={styles.ctas}>
-            <a href="#meny" className={styles.btnFlame}>{tr.cta1}</a>
-            <a href="#kontakt" className={styles.btnLine}>{tr.cta2}</a>
-          </div>
-          <span className={styles.scroll} aria-hidden><i />{tr.scroll}</span>
+        {/* Start: only the film and a hint */}
+        <div className={styles.hint} ref={hint} data-crintro-hold aria-hidden>
+          <i />
+          <span>{tr.scroll}</span>
         </div>
 
-        {tr.chapters.map((c, i) => (
-          <div key={c.n} className={`${styles.chapter} ${i === 3 ? styles.final : ""}`} ref={(n) => { layers.current[i] = n; }}>
+        {tr.chapters.slice(0, CH.length).map((c, i) => (
+          <div key={c.n} className={styles.chapter} ref={(n) => { layers.current[i] = n; }}>
             <span className={styles.num} aria-hidden>{c.n}</span>
             <p className={styles.kicker}>{c.n} — {c.name}</p>
             <h2 className={styles.h2}>{c.h}</h2>
             <p className={styles.text}>{c.p}</p>
-            {i === 3 && (
-              <div className={styles.ctas}>
-                <a href="#kontakt" className={styles.btnFlame}>{tr.cta2}</a>
-                <a href="#meny" className={styles.btnLine}>{tr.cta1}</a>
-              </div>
-            )}
           </div>
         ))}
+
+        {/* Final: the film stands still, the emblem lands, the brand rises beside it */}
+        <div className={styles.brandShade} aria-hidden />
+        <div className={styles.brand}>
+          <div className={styles.emblemWrap}>
+            <div className={styles.emblem}>
+              <span className={styles.sparks} aria-hidden>
+                {SPARKS.map((d, n) => (
+                  <i key={n} style={{ ["--x" as string]: d[0], ["--y" as string]: d[1], ["--dl" as string]: d[2] }} />
+                ))}
+              </span>
+              <div className={styles.emblemTilt}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo.webp" alt="Coal is King" className={styles.emblemImg} width={813} height={794} decoding="async" />
+                <span className={styles.spot} aria-hidden />
+                <span className={styles.gloss} aria-hidden />
+              </div>
+            </div>
+          </div>
+          <div className={styles.brandText}>
+            <p className={styles.bEye}><i />{tr.brand.eyebrow}<i /></p>
+            <h1 className={styles.bName}>
+              <span>Coal is</span>
+              <span className={styles.bKing}>King</span>
+            </h1>
+            <p className={styles.bSub}>{tr.brand.sub}</p>
+            <p className={styles.bLead}>{tr.lead}</p>
+            <div className={`${styles.ctas} ${styles.bCtas}`}>
+              <a href="#kontakt" className={styles.btnFlame}>{tr.cta2}</a>
+              <a href="#meny" className={styles.btnLine}>{tr.cta1}</a>
+            </div>
+            <p className={styles.bStatus}><i />{tr.brand.status}</p>
+          </div>
+        </div>
 
         <div className={styles.thermo} aria-label={tr.temp}>
           <span className={styles.thermoLbl}>{tr.temp}</span>
@@ -255,7 +368,7 @@ export default function FilmHero() {
 
         <nav className={styles.nav} aria-label={lang === "sv" ? "Kapitel" : "Chapters"}>
           {tr.chapters.map((c, i) => (
-            <button key={c.n} className={active === i ? styles.on : ""} onClick={() => jump(i)} ref={(n) => { segs.current[i] = n; }}>
+            <button key={c.n} className={active === i ? styles.on : ""} onClick={() => jump(i)} data-jump ref={(n) => { segs.current[i] = n; }}>
               <span className={styles.seg}><i /></span>
               <span className={styles.lbl}><b>{c.n}</b> {c.name}</span>
             </button>

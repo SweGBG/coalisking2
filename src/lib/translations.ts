@@ -11,6 +11,11 @@ export const t = {
       cta2: "Boka bord",
       scroll: "Scrolla och tänd grillen",
       temp: "Grilltemperatur",
+      brand: {
+        eyebrow: "Authentic Charcoal Grill",
+        sub: "Kolgrill · Kungsgatan 14, Stockholm",
+        status: "Mån–Fre 12–22 · Lör–Sön 12–23",
+      },
       chapters: [
         { n: "01", name: "Glöden", h: "Kolet först. Alltid.", p: "Ek- och hickorykol tänds långsamt tills hela bädden glöder orange. Vi stressar aldrig elden." },
         { n: "02", name: "Köttet", h: "Hör hur det fräser.", p: "Dry-agat i 28 dagar och lagt på gjutjärnet när glöden är som hetast." },
@@ -145,6 +150,11 @@ export const t = {
       cta2: "Book a table",
       scroll: "Scroll to light the grill",
       temp: "Grill temperature",
+      brand: {
+        eyebrow: "Authentic Charcoal Grill",
+        sub: "Charcoal grill · Kungsgatan 14, Stockholm",
+        status: "Mon–Fri 12–22 · Sat–Sun 12–23",
+      },
       chapters: [
         { n: "01", name: "The embers", h: "Charcoal first. Always.", p: "Oak and hickory charcoal lit slowly until the whole bed glows orange. We never rush the fire." },
         { n: "02", name: "The meat", h: "Hear it sizzle.", p: "Dry-aged for 28 days and laid on cast iron when the embers are at their hottest." },
